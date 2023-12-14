@@ -149,7 +149,7 @@ int main(int argc, char **argv){
     #else
       end = clock();
       milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
-      printf("Initialization took %f ms\n", milliseconds);
+      printf("Initialization took %f s\n", milliseconds);
     #endif
   #endif
 
@@ -195,7 +195,7 @@ int main(int argc, char **argv){
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
-        printf("Gen %d: Selection took %f ms\n",generation_count, milliseconds);
+        printf("Gen %d: Selection took %f s\n",generation_count, milliseconds);
       #endif
     #endif
     #ifdef DEBUG
@@ -237,7 +237,7 @@ int main(int argc, char **argv){
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
-        printf("Gen %d: Crossover took %f ms\n",generation_count, milliseconds);
+        printf("Gen %d: Crossover took %f s\n",generation_count, milliseconds);
       #endif
     #endif
     #ifdef DEBUG
@@ -280,7 +280,7 @@ int main(int argc, char **argv){
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
-        printf("Gen %d: Mutation took %f ms\n",generation_count, milliseconds);
+        printf("Gen %d: Mutation took %f s\n",generation_count, milliseconds);
       #endif
     #endif
 
@@ -325,7 +325,7 @@ int main(int argc, char **argv){
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
-        printf("Gen %d: Cost Update took %f ms\n",generation_count, milliseconds);
+        printf("Gen %d: Cost Update took %f s\n",generation_count, milliseconds);
       #endif
     #endif
 
@@ -366,7 +366,7 @@ int main(int argc, char **argv){
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
-        printf("Gen %d: Minimum Cost took %f ms\n",generation_count, milliseconds);
+        printf("Gen %d: Minimum Cost took %f s\n",generation_count, milliseconds);
       #endif
     #endif
     printf("Generation %d's minimum cost: \t %.0f\n",generation_count,min_cost);
@@ -380,7 +380,7 @@ int main(int argc, char **argv){
       #else
         endgen = clock();
         milliseconds = ((double)(endgen - startgen)) / CLOCKS_PER_SEC;
-        printf("Gen %d took %f ms\n",generation_count, milliseconds);
+        printf("Gen %d took %f s\n",generation_count, milliseconds);
       #endif
     #endif
 
@@ -391,22 +391,24 @@ int main(int argc, char **argv){
     }
   }
   // --------------End GA Loop---------------
-  // Timing report:
-  fit_avg_us /= generation_count;
-  min_avg_us /= generation_count;
-  mut_avg_us /= generation_count;
-  sel_avg_us /= generation_count;
-  cross_avg_us /= generation_count;
-  gen_avg_us /= generation_count;
   
-  printf("\n TIMING REPORT: (values in us)\n");
-  printf("------------------------------\n");
-  printf("Averaged across %d generations\n", generation_count);
-  printf("------------------------------\n");
-  printf("SELECTION\tCROSSOVER\tMUTATION\tCOST_UPDATE\tMINIMUM_COST\tGENERATION\n");
-  printf("%ld\t\t%ld\t\t%ld\t\t%ld\t\t%ld\t\t%d\n", sel_avg_us, cross_avg_us, mut_avg_us, fit_avg_us, min_avg_us, gen_avg_us);
-  printf("------------------------------\n");
-
+  #ifdef EMBEDDED
+  // Timing report:
+    fit_avg_us /= generation_count;
+    min_avg_us /= generation_count;
+    mut_avg_us /= generation_count;
+    sel_avg_us /= generation_count;
+    cross_avg_us /= generation_count;
+    gen_avg_us /= generation_count;
+    
+    printf("\n TIMING REPORT: (values in us)\n");
+    printf("------------------------------\n");
+    printf("Averaged across %d generations\n", generation_count);
+    printf("------------------------------\n");
+    printf("SELECTION\tCROSSOVER\tMUTATION\tCOST_UPDATE\tMINIMUM_COST\tGENERATION\n");
+    printf("%ld\t\t%ld\t\t%ld\t\t%ld\t\t%ld\t\t%d\n", sel_avg_us, cross_avg_us, mut_avg_us, fit_avg_us, min_avg_us, gen_avg_us);
+    printf("------------------------------\n");
+  #endif
   // Free memory
   for(i=0; i<POPULATION_SIZE; i++){
     free(pop[i]);

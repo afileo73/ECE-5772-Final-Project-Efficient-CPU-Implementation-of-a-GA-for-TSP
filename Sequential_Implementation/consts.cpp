@@ -4,8 +4,8 @@
 // #define DEBUG
 #define VERBOSE
 #define TIMING
-#define PARALLEL
-#define EMBEDDED
+// #define PARALLEL
+// #define EMBEDDED
 
 // Configurations Parameters:
 #define POPULATION_SIZE 100000

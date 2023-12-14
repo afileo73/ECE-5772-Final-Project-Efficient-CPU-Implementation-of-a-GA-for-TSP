@@ -225,8 +225,8 @@ void* mutation(void *slice){
     // If a random percent chance occurs
     if((rand_r(&args.seed) % 100) <= MUTATION_CHANCE){
       // Select two random indexs and swap
-      int index1 = rand() % NUM_CITIES;
-      int index2 = rand() % NUM_CITIES;
+      int index1 = rand_r(&args.seed) % NUM_CITIES;
+      int index2 = rand_r(&args.seed) % NUM_CITIES;
       int temp = pop[i][index1];
       pop[i][index1] = pop[i][index2];
       pop[i][index2] = temp;
