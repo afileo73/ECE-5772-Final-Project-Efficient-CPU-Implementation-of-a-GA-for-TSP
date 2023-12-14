@@ -101,10 +101,41 @@ int main(int argc, char **argv){
   #endif
 
   // Cost Evaluation
-  cost_update(pop, cost, cost_table);
+  #ifdef PARALLEL
+    // Launch threads
+    for(i=0; i<NUM_THREADS; i++){
+      status = pthread_create(&thread[i], NULL, cost_update, (void *) &thread_args[i]);
+      if ( status != 0 ) { perror("(main) Can't create thread"); free(thread); exit(-1); }
+    }
+    // Wait for all threads to complete
+    for(i=0; i<NUM_THREADS; i++){
+      pthread_join(thread[i], NULL);
+    }
+  #else
+    cost_update(pop, cost, cost_table);
+  #endif
 
   // Find least cost
-  double min_cost = findleastcost(cost, cost_table);
+  #ifdef PARALLEL
+    // Launch threads
+    for(i=0; i<NUM_THREADS; i++){
+      status = pthread_create(&thread[i], NULL, findleastcost, (void *) &thread_args[i]);
+      if ( status != 0 ) { perror("(main) Can't create thread"); free(thread); exit(-1); }
+    }
+    // Wait for all threads to complete
+    for(i=0; i<NUM_THREADS; i++){
+      pthread_join(thread[i], NULL);
+    }
+    // Find minimum from outputs
+    min_cost = thread_args[i].min;
+    for(i=1; i<NUM_THREADS; i++){
+      if(thread_args[i].min){
+        min_cost = thread_args[i].min;
+      }
+    }
+  #else
+    double min_cost = findleastcost(cost, cost_table);
+  #endif
 
   #ifdef TIMING
     #ifdef EMBEDDED
