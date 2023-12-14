@@ -29,7 +29,7 @@ int main(int argc, char **argv){
   struct timeval start, end, startgen, endgen;
   long t_us;
   long sel_avg_us = 0, cross_avg_us = 0, mut_avg_us = 0,
-    fit_avg_us = 0, min_avg_us = 0;
+    fit_avg_us = 0, min_avg_us = 0, gen_avg_us = 0;
   gettimeofday(&start, NULL);
   #else
   float milliseconds;
@@ -128,9 +128,11 @@ int main(int argc, char **argv){
     }
     // Find minimum from outputs
     double min_cost = thread_args[0].min;
+    printf("Minimum cost of thread 0 is %f", min_cost);
     for(i=1; i<NUM_THREADS; i++){
       if(thread_args[i].min){
         min_cost = thread_args[i].min;
+        printf("Minimum cost of thread %d is %f", i, thread_args[i].min);
       }
     }
   #else
@@ -155,7 +157,7 @@ int main(int argc, char **argv){
   // -----------End Initialization-----------
   // -------------Begin GA Loop--------------
   bool stopping_criteria_met = false;
-  int generation_count = 1;
+  int generation_count = 0;
 
   while(!stopping_criteria_met){
     #ifdef TIMING
@@ -366,22 +368,25 @@ int main(int argc, char **argv){
       #endif
     #endif
     printf("Generation %d's minimum cost: \t %.0f\n",generation_count,min_cost);
-    // Stopping Conditions
-    if(generation_count == NUM_GENERATIONS){
-      stopping_criteria_met = true;
-    }
+    
     #ifdef TIMING
       #ifdef EMBEDDED
         gettimeofday(&endgen, NULL);
         t_us = (endgen.tv_sec - startgen.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
         printf("Gen %d took %ld us\n",generation_count, t_us);
+        gen_avg_us += t_us;
       #else
         endgen = clock();
         milliseconds = ((double)(endgen - startgen)) / CLOCKS_PER_SEC;
         printf("Gen %d took %f ms\n",generation_count, milliseconds);
       #endif
     #endif
+
+    // Stopping Conditions
     generation_count++;
+    if(generation_count == NUM_GENERATIONS){
+      stopping_criteria_met = true;
+    }
   }
   // --------------End GA Loop---------------
   // Timing report:
@@ -390,13 +395,14 @@ int main(int argc, char **argv){
   mut_avg_us /= generation_count;
   sel_avg_us /= generation_count;
   cross_avg_us /= generation_count;
+  gen_avg_us /= generation_count;
   
   printf("\n TIMING REPORT: (values in us)\n");
   printf("------------------------------\n");
   printf("Averaged across %d generations\n", generation_count);
   printf("------------------------------\n");
-  printf("SELECTION\tCROSSOVER\tMUTATION\tCOST_UPDATE\tMINIMUM_COST\n");
-  printf("%ld\t\t%ld\t\t%ld\t\t%ld\t\t%ld\n", sel_avg_us, cross_avg_us, mut_avg_us, fit_avg_us, min_avg_us);
+  printf("SELECTION\tCROSSOVER\tMUTATION\tCOST_UPDATE\tMINIMUM_COST\tGENERATION\n");
+  printf("%ld\t\t%ld\t\t%ld\t\t%ld\t\t%ld\t\t%d\n", sel_avg_us, cross_avg_us, mut_avg_us, fit_avg_us, min_avg_us, gen_avg_us);
   printf("------------------------------\n");
 
   // Free memory
