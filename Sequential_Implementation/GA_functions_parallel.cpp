@@ -93,13 +93,18 @@ double findleastcost(float *cost, float** cost_table){
 
 // Perform a series of tournament selections to choose parents for the next
 // generation of solutions
-void selection(float *cost, int *parents){
+void* selection(void *slice){
+  TH_args args = *( (TH_args *) slice); // 'slice' is a pointer to a structure
+
+  float *cost = args.cost;
+  int *parents = args.parents;
+
   int i, j;
   int * tournament;
   int temp_index, best_index;
   tournament = (int*)calloc(TOURNAMENT_SIZE, sizeof(int));
   // Select a two parents for every member of the next generation
-  for(i = 0; i < 2*POPULATION_SIZE; i++){
+  for(i = start*2; i != 2*end; i++){
     // Select TOURNAMENT_SIZE number of the population to compete
     // in the tournament
     best_index = rand() % POPULATION_SIZE;

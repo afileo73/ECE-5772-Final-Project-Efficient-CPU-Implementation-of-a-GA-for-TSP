@@ -131,7 +131,19 @@ int main(int argc, char **argv){
       #endif
     #endif
     // Select Parents
+    #ifdef PARALLEL
+    // Launch threads
+      for(i=0; i<NUM_THREADS; i++){
+        status = pthread_create(&thread[i], NULL, selection, (void *) &thread_args[i]);
+        if ( status != 0 ) { perror("(main) Can't create thread"); free(thread); exit(-1); }
+      }
+      // Wait for all threads to complete
+      for(i=0; i<NUM_THREADS; i++){
+        pthread_join(thread[i], NULL);
+      }
+    #else
     selection(cost, parents);
+    #endif
 
     #ifdef TIMING
       #ifdef EMBEDDED
