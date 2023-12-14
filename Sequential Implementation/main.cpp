@@ -17,17 +17,8 @@
   #include "GA_functions.cpp"
 #endif
 
-#ifdef PARALLEL
-// Structure for thread arguments
-typedef struct {
-  int **pop;
-  float *cost;
-  int *parents;
-  float **cost_table;
-  int start;
-  int end;
-} TH_args;
-#endif
+// To run on linux:
+// g++ main.cpp -o GA -lm -lpthread
 
 int main(int argc, char **argv){
   // -------------Initialization-------------
@@ -47,10 +38,11 @@ int main(int argc, char **argv){
   #endif
 
   #ifdef PARALLEL
+  int status;
     pthread_t *thread;
     TH_args *thread_args;
     thread_args = (TH_args *)calloc(NUM_THREADS, sizeof(TH_args));
-    thread = (pthread_t *) malloc(NUM_THREADS*sizeof(pthread_t))
+    thread = (pthread_t *) malloc(NUM_THREADS*sizeof(pthread_t));
   #endif
 
   // Variable Initialization:
@@ -79,12 +71,12 @@ int main(int argc, char **argv){
     for(i=0; i < NUM_THREADS; i++){
       thread_args[i].pop = pop;
       thread_args[i].cost = cost;
-      thread_args[i].parent = parents;
+      thread_args[i].parents = parents;
       thread_args[i].cost_table = cost_table;
       thread_args[i].start = (i * thread_range);
-      thread_args[i].end = ((i+1)* thread_range) - 1;
-      if (thread_args[i].end >= POPULATION_SIZE){
-        thread_args[i].end = POPULATION_SIZE-1;
+      thread_args[i].end = ((i+1)* thread_range);
+      if (thread_args[i].end > POPULATION_SIZE){
+        thread_args[i].end = POPULATION_SIZE;
       }
     }
   #endif
@@ -112,7 +104,7 @@ int main(int argc, char **argv){
     #ifdef EMBEDDED
       gettimeofday(&end, NULL);
       t_us = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
-      printf("Initialization took %ld us\n", tus);
+      printf("Initialization took %ld us\n", t_us);
     #else
       end = clock();
       milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
@@ -145,7 +137,7 @@ int main(int argc, char **argv){
       #ifdef EMBEDDED
         gettimeofday(&end, NULL);
         t_us = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
-        printf("Gen %d: Selection took %ld us\n", generation_count,tus);
+        printf("Gen %d: Selection took %ld us\n", generation_count,t_us);
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
@@ -166,14 +158,27 @@ int main(int argc, char **argv){
         start = clock();
       #endif
     #endif
+
     // Crossover
-    crossover(pop, parents, cost_table);
+    #ifdef PARALLEL
+    // Launch threads
+      for(i=0; i<NUM_THREADS; i++){
+        status = pthread_create(&thread[i], NULL, crossover, (void *) &thread_args[i]);
+        if ( status != 0 ) { perror("(main) Can't create thread"); free(thread); exit(-1); }
+      }
+      // Wait for all threads to complete
+      for(i=0; i<NUM_THREADS; i++){
+        pthread_join(thread[i], NULL);
+      }
+    #else
+      crossover(pop, parents, cost_table);
+    #endif
 
     #ifdef TIMING
       #ifdef EMBEDDED
         gettimeofday(&end, NULL);
         t_us = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
-        printf("Gen %d: Crossover took %ld us\n",generation_count, tus);
+        printf("Gen %d: Crossover took %ld us\n",generation_count, t_us);
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
@@ -203,7 +208,7 @@ int main(int argc, char **argv){
       #ifdef EMBEDDED
         gettimeofday(&end, NULL);
         t_us = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
-        printf("Gen %d: Mutation took %ld us\n",generation_count, tus);
+        printf("Gen %d: Mutation took %ld us\n",generation_count, t_us);
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
@@ -235,7 +240,7 @@ int main(int argc, char **argv){
       #ifdef EMBEDDED
         gettimeofday(&end, NULL);
         t_us = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
-        printf("Gen %d: Fitness took %ld us\n", generation_count,tus);
+        printf("Gen %d: Fitness took %ld us\n", generation_count,t_us);
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
@@ -252,7 +257,7 @@ int main(int argc, char **argv){
       #ifdef EMBEDDED
         gettimeofday(&endgen, NULL);
         t_us = (endgen.tv_sec - startgen.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
-        printf("Gen %d took %ld us\n",generation_count, tus);
+        printf("Gen %d took %ld us\n",generation_count, t_us);
       #else
         endgen = clock();
         milliseconds = ((double)(endgen - startgen)) / CLOCKS_PER_SEC;

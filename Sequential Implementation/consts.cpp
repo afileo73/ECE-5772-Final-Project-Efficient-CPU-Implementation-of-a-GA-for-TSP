@@ -4,7 +4,7 @@
 // #define DEBUG
 #define VERBOSE
 #define TIMING
-// #define PARALLEL
+#define PARALLEL
 #define EMBEDDED
 
 // Configurations Parameters:

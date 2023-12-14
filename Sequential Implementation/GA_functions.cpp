@@ -14,7 +14,7 @@ float L2distance(float x1, float y1, float x2, float y2) {
 }
 
 // Initialization cost table from the (x,y) locations of the cities
-// Could be optimizied since distance are bidirectional, ie cost_table[i][j] = cost_table[j][i] 
+// Could be optimizied since distances are bidirectional, ie cost_table[i][j] = cost_table[j][i] 
 void build_cost_table(float **cost_table){
   int k, j;
   for (k = 0; k < NUM_CITIES; k++) {

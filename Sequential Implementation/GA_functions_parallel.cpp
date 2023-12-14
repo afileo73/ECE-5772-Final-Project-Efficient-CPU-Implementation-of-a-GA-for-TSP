@@ -9,6 +9,16 @@
 #endif
 #pragma once
 
+// Structure for thread arguments
+typedef struct {
+  int **pop;
+  float *cost;
+  int *parents;
+  float **cost_table;
+  int start;
+  int end;
+} TH_args;
+
 // Finds the linear distance between 2D coordinates
 float L2distance(float x1, float y1, float x2, float y2) {
     float x_d = pow(x1 - x2, 2);
@@ -17,7 +27,7 @@ float L2distance(float x1, float y1, float x2, float y2) {
 }
 
 // Initialization cost table from the (x,y) locations of the cities
-// Could be optimizied since distance are bidirectional, ie cost_table[i][j] = cost_table[j][i] 
+// Could be optimizied since distances are bidirectional, ie cost_table[i][j] = cost_table[j][i] 
 void build_cost_table(float **cost_table){
   int k, j;
   for (k = 0; k < NUM_CITIES; k++) {
@@ -126,17 +136,24 @@ int getValidNextCity(int *parent, int *child, int current_index, bool* used_citi
 }
 
 // Combine parents into children
-void crossover(int** pop, int* parents, float** cost_table){
+void* crossover(void *slice){
+  TH_args args = *((TH_args *) slice);
+  int** pop = args.pop;
+  int* parents = args.parents;
+  float** cost_table = args.cost_table;
+  int start = args.start;
+  int end = args.end;
+
   int **new_pop; // The population
   // Allocate memory for each member of the populations chromosome
   new_pop = (int**) calloc(POPULATION_SIZE, sizeof(int*));
   int i, j;
-  for(i = 0; i<POPULATION_SIZE; i++){
+  for(i = start; i!=end; i++){
     // Allocate memory for each chromosome's genes
     new_pop[i] = (int*) calloc(NUM_CITIES, sizeof(int));
   }
   // Produce a new child to replace every member of the populations
-  for(i = 0; i < POPULATION_SIZE; i++){
+  for(i=start; i!=end; i++){
     new_pop[i][0] = 0; //First city is always zero
     bool used_cities[NUM_CITIES] = {};
     used_cities[0] = true;
@@ -155,14 +172,14 @@ void crossover(int** pop, int* parents, float** cost_table){
   }
 
   // Copy New Pop Data
-  for(i=0; i<POPULATION_SIZE; i++){
+  for(i=start; i!=end; i++){
     for(j=0; j<NUM_CITIES; j++){
       pop[i][j] = new_pop[i][j];
     }
   }
 
   // Free Memory
-  for(i = 0; i<POPULATION_SIZE; i++){
+  for(i = start; i!=end; i++){
     free(new_pop[i]);
   }
   free(new_pop);
