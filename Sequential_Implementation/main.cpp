@@ -132,9 +132,7 @@ int main(int argc, char **argv){
     }
     // Find minimum from outputs
     float min_cost = min[0];
-    printf("Minimum cost of thread 0 is %\nf", min_cost);
     for(i=1; i<NUM_THREADS; i++){
-      printf("Minimum cost of thread %d is %f\n", i, min[i]);
       if(min[i] < min_cost){
         min_cost = min[i];
       }
@@ -351,9 +349,7 @@ int main(int argc, char **argv){
       }
       // Find minimum from outputs
       float min_cost = min[0];
-      printf("Minimum cost of thread 0 is %\nf", min_cost);
       for(i=1; i<NUM_THREADS; i++){
-        printf("Minimum cost of thread %d is %f\n", i, min[i]);
         if(min[i] < min_cost){
           min_cost = min[i];
         }

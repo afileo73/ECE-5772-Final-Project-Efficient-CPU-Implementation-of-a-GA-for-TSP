@@ -102,9 +102,6 @@ void* findleastcost(void *slice){
   int i;
   float minimum = cost[start];
   for(i = start; i!= end; i++){
-    if(cost[i] == 0){
-      printf("Cost[%d] == 0\n",i);
-    }
     if (cost[i] < minimum){
       minimum = cost[i];
     }
