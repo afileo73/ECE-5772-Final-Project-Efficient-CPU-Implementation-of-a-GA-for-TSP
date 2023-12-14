@@ -128,9 +128,9 @@ int main(int argc, char **argv){
     }
     // Find minimum from outputs
     double min_cost = thread_args[0].min;
-    printf("Minimum cost of thread 0 is %f", min_cost);
+    printf("Minimum cost of thread 0 is %\nf", min_cost);
     for(i=1; i<NUM_THREADS; i++){
-      printf("Minimum cost of thread %d is %f", i, thread_args[i].min);
+      printf("Minimum cost of thread %d is %f\n", i, thread_args[i].min);
       if(thread_args[i].min < min_cost){
         min_cost = thread_args[i].min;
       }
