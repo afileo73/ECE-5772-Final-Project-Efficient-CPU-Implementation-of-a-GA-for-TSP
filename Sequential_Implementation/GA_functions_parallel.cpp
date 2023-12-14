@@ -100,13 +100,15 @@ void* selection(void *slice){
   int *parents = args.parents;
   int start = args.start;
   int end = args.end;
-  
+  start *= 2;
+  end *= 2;
+  printf("Selection thread starts at %d ends at %d", start, end);
   int i, j;
   int * tournament;
   int temp_index, best_index;
   tournament = (int*)calloc(TOURNAMENT_SIZE, sizeof(int));
   // Select a two parents for every member of the next generation
-  for(i = start*2; i != 2*end; i++){
+  for(i = start; i != end; i++){
     // Select TOURNAMENT_SIZE number of the population to compete
     // in the tournament
     best_index = rand() % POPULATION_SIZE;
