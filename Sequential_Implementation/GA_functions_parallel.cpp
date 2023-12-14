@@ -98,7 +98,9 @@ void* selection(void *slice){
 
   float *cost = args.cost;
   int *parents = args.parents;
-
+  int start = args.start;
+  int end = args.end;
+  
   int i, j;
   int * tournament;
   int temp_index, best_index;
