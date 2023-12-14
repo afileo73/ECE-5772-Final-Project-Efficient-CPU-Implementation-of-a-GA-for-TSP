@@ -12,7 +12,7 @@
 #define NUM_CITIES 52
 #define TOURNAMENT_SIZE 128
 #define MUTATION_CHANCE 10 // % Chance
-#define NUM_GENERATIONS 100
+#define NUM_GENERATIONS 10
 #define NUM_THREADS 4
 
 // Predefined city coordinates

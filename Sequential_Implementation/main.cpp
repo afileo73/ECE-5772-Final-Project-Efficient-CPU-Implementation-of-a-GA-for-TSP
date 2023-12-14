@@ -28,9 +28,12 @@ int main(int argc, char **argv){
   // Timing Variables:
   struct timeval start, end, startgen, endgen;
   long t_us;
+  long sel_avg_us = 0, cross_avg_us = 0, mut_avg_us = 0,
+    fit_avg_us = 0, min_avg_us = 0;
   gettimeofday(&start, NULL);
   #else
   float milliseconds;
+
   clock_t start, end, startgen, endgen;
 
   start = clock();
@@ -126,7 +129,7 @@ int main(int argc, char **argv){
   while(!stopping_criteria_met){
     #ifdef TIMING
       #ifdef EMBEDDED
-      gettimeofday(&startgen, NULL);
+        gettimeofday(&startgen, NULL);
         gettimeofday(&start, NULL);
       #else
         startgen = clock();
@@ -153,6 +156,7 @@ int main(int argc, char **argv){
         gettimeofday(&end, NULL);
         t_us = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
         printf("Gen %d: Selection took %ld us\n", generation_count,t_us);
+        sel_avg_us += t_us;
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
@@ -194,6 +198,7 @@ int main(int argc, char **argv){
         gettimeofday(&end, NULL);
         t_us = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
         printf("Gen %d: Crossover took %ld us\n",generation_count, t_us);
+        cross_avg_us += t_us;
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
@@ -236,6 +241,7 @@ int main(int argc, char **argv){
         gettimeofday(&end, NULL);
         t_us = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
         printf("Gen %d: Mutation took %ld us\n",generation_count, t_us);
+        mut_avg_us += t_us;
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
@@ -274,6 +280,28 @@ int main(int argc, char **argv){
     #else
     cost_update(pop, cost, cost_table);
     #endif
+
+    #ifdef TIMING
+      #ifdef EMBEDDED
+        gettimeofday(&end, NULL);
+        t_us = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
+        printf("Gen %d: Cost Update took %ld us\n", generation_count,t_us);
+        fit_avg_us += t_us;
+      #else
+        end = clock();
+        milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
+        printf("Gen %d: Cost Update took %f ms\n",generation_count, milliseconds);
+      #endif
+    #endif
+
+    #ifdef TIMING
+      #ifdef EMBEDDED
+        gettimeofday(&start, NULL);
+      #else
+        start = clock();
+      #endif
+    #endif
+
     #ifdef PARALLEL
       // Launch threads
       for(i=0; i<NUM_THREADS; i++){
@@ -298,11 +326,12 @@ int main(int argc, char **argv){
       #ifdef EMBEDDED
         gettimeofday(&end, NULL);
         t_us = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
-        printf("Gen %d: Fitness took %ld us\n", generation_count,t_us);
+        printf("Gen %d: Minimum Cost took %ld us\n", generation_count,t_us);
+        min_avg_us += t_us;
       #else
         end = clock();
         milliseconds = ((double)(end - start)) / CLOCKS_PER_SEC;
-        printf("Gen %d: Fitness took %f ms\n",generation_count, milliseconds);
+        printf("Gen %d: Minimum Cost took %f ms\n",generation_count, milliseconds);
       #endif
     #endif
     printf("Generation %d's minimum cost: \t %.0f\n",generation_count,min_cost);
@@ -310,7 +339,6 @@ int main(int argc, char **argv){
     if(generation_count == NUM_GENERATIONS){
       stopping_criteria_met = true;
     }
-    generation_count++;
     #ifdef TIMING
       #ifdef EMBEDDED
         gettimeofday(&endgen, NULL);
@@ -322,8 +350,24 @@ int main(int argc, char **argv){
         printf("Gen %d took %f ms\n",generation_count, milliseconds);
       #endif
     #endif
+    generation_count++;
   }
   // --------------End GA Loop---------------
+  // Timing report:
+  fit_avg_us /= generation_count;
+  min_avg_us /= generation_count;
+  mut_avg_us /= generation_count;
+  sel_avg_us /= generation_count;
+  cross_avg_us /= generation_count;
+  
+  printf("\n TIMING REPORT: (values in us)\n");
+  printf("------------------------------\n");
+  printf("Averaged across %d generations\n", generation_count);
+  printf("------------------------------\n");
+  printf("SELECTION\tCROSSOVER\tMUTATION\tCOST_UPDATE\tMINIMUM_COST\n");
+  printf("%ld\t%ld\t%ld\t%ld\t%ld\t\n", sel_avg_us, cross_avg_us, mut_avg_us, fit_avg_us, min_avg_us);
+  printf("------------------------------\n");
+
   // Free memory
   for(i=0; i<POPULATION_SIZE; i++){
     free(pop[i]);
