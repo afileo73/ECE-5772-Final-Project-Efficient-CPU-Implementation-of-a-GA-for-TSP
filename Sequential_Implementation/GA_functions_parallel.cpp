@@ -97,8 +97,8 @@ void* findleastcost(void *slice){
   int end = args.end;
 
   int i;
-  float minimum = cost[0];
-  for(i = 1; i<POPULATION_SIZE; i++){
+  float minimum = cost[start];
+  for(i = start; i!= end; i++){
     if (cost[i] < minimum){
       minimum = cost[i];
     }
