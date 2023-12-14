@@ -78,6 +78,7 @@ int main(int argc, char **argv){
       if (thread_args[i].end > POPULATION_SIZE){
         thread_args[i].end = POPULATION_SIZE;
       }
+      thread_args[i].seed = rand(); // Not certain this is neccesary, rand_r seems to just need a unique int address, not value
     }
   #endif
 

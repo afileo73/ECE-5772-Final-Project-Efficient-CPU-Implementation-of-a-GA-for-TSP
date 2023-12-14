@@ -17,6 +17,7 @@ typedef struct {
   float **cost_table;
   int start;
   int end;
+  int seed;
 } TH_args;
 
 // Finds the linear distance between 2D coordinates
@@ -111,9 +112,9 @@ void* selection(void *slice){
   for(i = start; i != end; i++){
     // Select TOURNAMENT_SIZE number of the population to compete
     // in the tournament
-    best_index = rand() % POPULATION_SIZE;
+    best_index = rand_r(&args.seed) % POPULATION_SIZE;
     for(j = 1; j < TOURNAMENT_SIZE; j++){
-      temp_index = rand() % POPULATION_SIZE;
+      temp_index = rand_r(&args.seed) % POPULATION_SIZE;
       if(cost[temp_index] < cost[best_index]){
         best_index = temp_index;
       }
@@ -204,7 +205,7 @@ void* mutation(void *slice){
   int i;
   for(i = start; i != end; i++){
     // If a random percent chance occurs
-    if((rand() % 100) <= MUTATION_CHANCE){
+    if((rand_r(&args.seed) % 100) <= MUTATION_CHANCE){
       // Select two random indexs and swap
       int index1 = rand() % NUM_CITIES;
       int index2 = rand() % NUM_CITIES;
