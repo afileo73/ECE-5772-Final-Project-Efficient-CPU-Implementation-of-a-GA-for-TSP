@@ -89,7 +89,7 @@ void* cost_update(void *slice){
 }
 
 // Find the fittest member of the population
-void findleastcost(void *slice){
+void* findleastcost(void *slice){
   TH_args args = *((TH_args *) slice);
   float *cost = args.cost;
   float** cost_table = args.cost_table;
@@ -103,7 +103,7 @@ void findleastcost(void *slice){
       minimum = cost[i];
     }
   }
-  
+
   args.min = minimum;
 };
 

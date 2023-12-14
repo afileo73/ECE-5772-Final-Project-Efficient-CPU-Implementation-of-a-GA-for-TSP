@@ -396,7 +396,7 @@ int main(int argc, char **argv){
   printf("Averaged across %d generations\n", generation_count);
   printf("------------------------------\n");
   printf("SELECTION\tCROSSOVER\tMUTATION\tCOST_UPDATE\tMINIMUM_COST\n");
-  printf("%ld\t%ld\t%ld\t%ld\t%ld\t\n", sel_avg_us, cross_avg_us, mut_avg_us, fit_avg_us, min_avg_us);
+  printf("%ld\t\t%ld\t\t%ld\t\t%ld\t\t%ld\n", sel_avg_us, cross_avg_us, mut_avg_us, fit_avg_us, min_avg_us);
   printf("------------------------------\n");
 
   // Free memory
