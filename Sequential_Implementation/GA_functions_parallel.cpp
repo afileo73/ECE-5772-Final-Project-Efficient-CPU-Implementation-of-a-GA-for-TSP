@@ -102,7 +102,7 @@ void* selection(void *slice){
   int end = args.end;
   start *= 2;
   end *= 2;
-  printf("Selection thread starts at %d ends at %d", start, end);
+  //printf("Selection thread starts at %d ends at %d", start, end);
   int i, j;
   int * tournament;
   int temp_index, best_index;
@@ -195,9 +195,14 @@ void* crossover(void *slice){
 }
 
 // Mutate random members of the population
-void mutation(int **pop){
+void* mutation(void *slice){
+  TH_args args = *( (TH_args *) slice); // 'slice' is a pointer to a structure
+  int **pop = args.pop;
+  int start = args.start;
+  int end = args.end;
+
   int i;
-  for(i = 0; i < POPULATION_SIZE; i++){
+  for(i = start; i != end; i++){
     // If a random percent chance occurs
     if((rand() % 100) <= MUTATION_CHANCE){
       // Select two random indexs and swap
