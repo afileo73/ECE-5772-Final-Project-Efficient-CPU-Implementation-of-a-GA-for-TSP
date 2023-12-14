@@ -127,7 +127,7 @@ int main(int argc, char **argv){
       pthread_join(thread[i], NULL);
     }
     // Find minimum from outputs
-    min_cost = thread_args[i].min;
+    double min_cost = thread_args[i].min;
     for(i=1; i<NUM_THREADS; i++){
       if(thread_args[i].min){
         min_cost = thread_args[i].min;
