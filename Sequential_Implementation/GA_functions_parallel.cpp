@@ -18,6 +18,7 @@ typedef struct {
   int start;
   int end;
   int seed;
+  float min;
 } TH_args;
 
 // Finds the linear distance between 2D coordinates
@@ -67,11 +68,18 @@ void initialize_population(int **pop){
 }
 
 // Updates the cost of all chromosomes
-void cost_update(int **pop, float *cost, float** cost_table){
+void* cost_update(void *slice){
+  TH_args args = *( (TH_args *) slice);
+  int **pop = args.pop;
+  float *cost = args.cost;
+  float** cost_table = args.cost_table;
+  int start = args.start;
+  int end = args.end;
+
   int i, j;
 
   // Evaluate every member of the population
-  for(i = 0; i<POPULATION_SIZE; i++){
+  for(i = start; i!=end; i++){
     cost[i] = 0.0; // Base cost
     // Loop through current chromosome and total cost
     for(j = 1; j<NUM_CITIES; j++){
@@ -81,7 +89,13 @@ void cost_update(int **pop, float *cost, float** cost_table){
 }
 
 // Find the fittest member of the population
-double findleastcost(float *cost, float** cost_table){
+void findleastcost(void *slice){
+  TH_args args = *((TH_args *) slice);
+  float *cost = args.cost;
+  float** cost_table = args.cost_table;
+  int start = args.start;
+  int end = args.end;
+
   int i;
   float minimum = cost[0];
   for(i = 1; i<POPULATION_SIZE; i++){
@@ -89,7 +103,8 @@ double findleastcost(float *cost, float** cost_table){
       minimum = cost[i];
     }
   }
-  return(minimum);
+  
+  args.min = minimum;
 };
 
 // Perform a series of tournament selections to choose parents for the next
