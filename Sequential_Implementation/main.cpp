@@ -66,6 +66,8 @@ int main(int argc, char **argv){
   for(i = 0; i<NUM_CITIES; i++){
     cost_table[i] = (float*)calloc(NUM_CITIES,sizeof(float));
   }
+  float *min;
+  min = (float*)calloc(NUM_THREADS,sizeof(float));
 
   #ifdef PARALLEL
     // The range of the population a single thread should handle, rounded up
@@ -82,6 +84,8 @@ int main(int argc, char **argv){
         thread_args[i].end = POPULATION_SIZE;
       }
       thread_args[i].seed = rand(); // Not certain this is neccesary, rand_r seems to just need a unique int address, not value
+      thread_args[i].min = min;
+      thread_args[i].thrdIdx = i;
     }
   #endif
 
@@ -127,16 +131,16 @@ int main(int argc, char **argv){
       pthread_join(thread[i], NULL);
     }
     // Find minimum from outputs
-    double min_cost = thread_args[0].min;
+    float min_cost = min[0];
     printf("Minimum cost of thread 0 is %\nf", min_cost);
     for(i=1; i<NUM_THREADS; i++){
-      printf("Minimum cost of thread %d is %f\n", i, thread_args[i].min);
-      if(thread_args[i].min < min_cost){
-        min_cost = thread_args[i].min;
+      printf("Minimum cost of thread %d is %f\n", i, min[i]);
+      if(min[i] < min_cost){
+        min_cost = min[i];
       }
     }
   #else
-    double min_cost = findleastcost(cost, cost_table);
+    float min_cost = findleastcost(cost, cost_table);
   #endif
 
   #ifdef TIMING
@@ -346,10 +350,12 @@ int main(int argc, char **argv){
         pthread_join(thread[i], NULL);
       }
       // Find minimum from outputs
-      min_cost = thread_args[0].min;
+      float min_cost = min[0];
+      printf("Minimum cost of thread 0 is %\nf", min_cost);
       for(i=1; i<NUM_THREADS; i++){
-        if(thread_args[i].min < min_cost){
-          min_cost = thread_args[i].min;
+        printf("Minimum cost of thread %d is %f\n", i, min[i]);
+        if(min[i] < min_cost){
+          min_cost = min[i];
         }
       }
     #else

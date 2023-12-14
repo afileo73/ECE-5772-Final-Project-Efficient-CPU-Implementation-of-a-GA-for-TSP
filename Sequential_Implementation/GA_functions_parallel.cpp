@@ -18,7 +18,8 @@ typedef struct {
   int start;
   int end;
   int seed;
-  float min;
+  float *min;
+  int thrdIdx;
 } TH_args;
 
 // Finds the linear distance between 2D coordinates
@@ -93,8 +94,10 @@ void* findleastcost(void *slice){
   TH_args args = *((TH_args *) slice);
   float *cost = args.cost;
   float** cost_table = args.cost_table;
+  float* min = args.min;
   int start = args.start;
   int end = args.end;
+  int thrdIdx = args.thrdIdx;
 
   int i;
   float minimum = cost[start];
@@ -107,7 +110,7 @@ void* findleastcost(void *slice){
     }
   }
 
-  args.min = minimum;
+  min[thrdIdx] = minimum;
 };
 
 // Perform a series of tournament selections to choose parents for the next

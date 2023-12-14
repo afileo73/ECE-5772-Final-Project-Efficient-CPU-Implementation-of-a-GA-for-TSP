@@ -67,7 +67,7 @@ void cost_update(int **pop, float *cost, float** cost_table){
 }
 
 // Find the fittest member of the population
-double findleastcost(float *cost, float** cost_table){
+float findleastcost(float *cost, float** cost_table){
   int i;
   float minimum = cost[0];
   for(i = 1; i<POPULATION_SIZE; i++){
